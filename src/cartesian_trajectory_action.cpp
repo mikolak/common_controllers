@@ -132,16 +132,49 @@ bool CartesianTrajectoryAction::checkTolerance(Eigen::Affine3d err, cartesian_tr
 }
 
 bool CartesianTrajectoryAction::checkWrenchTolerance(geometry_msgs::Wrench msr, geometry_msgs::Wrench tol) {
+  
+  static int i = 0;
+  
   if ((tol.force.x > 0.0) && (fabs(msr.force.x) > tol.force.x)) {
-    return false;
+	bool shouldQuit = true;  
+	for( int k = 0; k < TOLNUM; k++)
+	{
+		if (fabs(this->prevForceX[k]) < tol.force.x)
+		{
+			shouldQuit = false;
+			break;
+		}
+	}
+	if(shouldQuit)
+		return false;
   }
 
   if ((tol.force.y > 0.0) && (fabs(msr.force.y) > tol.force.y)) {
-    return false;
+	bool shouldQuit = true;  
+	for( int k = 0; k < TOLNUM; k++)
+	{
+		if (fabs(this->prevForceY[k]) < tol.force.y)
+		{
+			shouldQuit = false;
+			break;
+		}
+	}
+	if(shouldQuit)
+		return false;
   }
 
   if ((tol.force.z > 0.0) && (fabs(msr.force.z) > tol.force.z)) {
-    return false;
+	bool shouldQuit = true;  
+	for( int k = 0; k < TOLNUM; k++)
+	{
+		if (fabs(this->prevForceZ[k]) < tol.force.z)
+		{
+			shouldQuit = false;
+			break;
+		}
+	}
+	if(shouldQuit)
+		return false;
   }
 
   if ((tol.torque.x > 0.0) && (fabs(msr.torque.x) > tol.torque.x)) {
@@ -155,7 +188,13 @@ bool CartesianTrajectoryAction::checkWrenchTolerance(geometry_msgs::Wrench msr, 
   if ((tol.torque.z > 0.0) && (fabs(msr.torque.z) > tol.torque.z)) {
     return false;
   }
-
+  
+  this->prevForceX[i] = msr.force.x;
+  this->prevForceY[i] = msr.force.y;
+  this->prevForceZ[i] = msr.force.z;
+  if(++i = TOLNUM)
+	i = 0;
+	
   return true;
 }
 

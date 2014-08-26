@@ -23,6 +23,8 @@
 
 #include "Eigen/Dense"
 
+#define TOLNUM 2
+
 class CartesianTrajectoryAction: public RTT::TaskContext {
  private:
   typedef actionlib::ServerGoalHandle<cartesian_trajectory_msgs::CartesianTrajectoryAction> GoalHandle;
@@ -49,6 +51,11 @@ class CartesianTrajectoryAction: public RTT::TaskContext {
   RTT::InputPort<geometry_msgs::Wrench> port_cartesian_wrench_;
   rtt_actionlib::RTTActionServer<cartesian_trajectory_msgs::CartesianTrajectoryAction> as_;
   GoalHandle active_goal_;
+  
+  //const int tolNum = 2; // Dodane przez: mkojdeck
+  double prevForceX[TOLNUM];
+  double prevForceY[TOLNUM];
+  double prevForceZ[TOLNUM];
 };
 
 #endif  // CARTESIAN_TRAJECTORY_ACTION_H_
