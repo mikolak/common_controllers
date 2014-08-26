@@ -56,6 +56,7 @@ class CartesianTrajectoryAction: public RTT::TaskContext {
   double prevForceX[TOLNUM];
   double prevForceY[TOLNUM];
   double prevForceZ[TOLNUM];
+  int tolIndex;
 };
 
 #endif  // CARTESIAN_TRAJECTORY_ACTION_H_

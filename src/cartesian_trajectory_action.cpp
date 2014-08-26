@@ -27,6 +27,13 @@ CartesianTrajectoryAction::CartesianTrajectoryAction(const std::string& name) : 
 
   as_.registerGoalCallback(boost::bind(&CartesianTrajectoryAction::goalCB, this, _1));
   as_.registerCancelCallback(boost::bind(&CartesianTrajectoryAction::cancelCB, this, _1));
+  tolIndex = 0;
+  for (int i = 0; i < TOLNUM; i++)
+  {
+	this->prevForceX[i] = 0.0;
+	this->prevForceY[i] = 0.0;
+	this->prevForceZ[i] = 0.0;
+  }
 }
 
 CartesianTrajectoryAction::~CartesianTrajectoryAction() {
@@ -132,9 +139,7 @@ bool CartesianTrajectoryAction::checkTolerance(Eigen::Affine3d err, cartesian_tr
 }
 
 bool CartesianTrajectoryAction::checkWrenchTolerance(geometry_msgs::Wrench msr, geometry_msgs::Wrench tol) {
-  
-  static int i = 0;
-  
+	
   if ((tol.force.x > 0.0) && (fabs(msr.force.x) > tol.force.x)) {
 	bool shouldQuit = true;  
 	for( int k = 0; k < TOLNUM; k++)
@@ -189,11 +194,11 @@ bool CartesianTrajectoryAction::checkWrenchTolerance(geometry_msgs::Wrench msr, 
     return false;
   }
   
-  this->prevForceX[i] = msr.force.x;
-  this->prevForceY[i] = msr.force.y;
-  this->prevForceZ[i] = msr.force.z;
-  if(++i = TOLNUM)
-	i = 0;
+  this->prevForceX[tolIndex] = msr.force.x;
+  this->prevForceY[tolIndex] = msr.force.y;
+  this->prevForceZ[tolIndex] = msr.force.z;
+  if(++tolIndex >= TOLNUM)
+	tolIndex = 0;
 	
   return true;
 }
