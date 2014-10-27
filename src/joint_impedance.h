@@ -2,12 +2,12 @@
 /*
  * joint_limit_avoidance.h
  *
- *  Created on: 11 mar 2014
+ *  Created on: 30 sep 2014
  *      Author: konradb3
  */
 
-#ifndef JOINT_LIMIT_AVOIDANCE_H_
-#define JOINT_LIMIT_AVOIDANCE_H_
+#ifndef JOINT_IMPEDANCE_H_
+#define JOINT_IMPEDANCE_H_
 
 #include <string>
 #include <vector>
@@ -17,33 +17,36 @@
 
 #include "Eigen/Dense"
 
-class JointLimitAvoidance: public RTT::TaskContext {
+class JointImpedance: public RTT::TaskContext {
  public:
-  explicit JointLimitAvoidance(const std::string& name);
-  virtual ~JointLimitAvoidance();
+  explicit JointImpedance(const std::string& name);
+  virtual ~JointImpedance();
 
   bool configureHook();
-  void updateHook();
+  bool startHook();
   void stopHook();
+  void updateHook();
+
  private:
-  double jointLimitTrq(double hl, double ll, double ls, double r_max, double q);
 
   RTT::InputPort<Eigen::VectorXd> port_joint_position_;
+  RTT::InputPort<Eigen::VectorXd> port_joint_position_command_;
+  RTT::InputPort<Eigen::VectorXd> port_joint_stiffness_command_;
   RTT::InputPort<Eigen::VectorXd> port_joint_velocity_;
   RTT::InputPort<Eigen::MatrixXd> port_mass_matrix_;
   RTT::InputPort<Eigen::VectorXd> port_nullspace_torque_command_;
   RTT::OutputPort<Eigen::VectorXd> port_joint_torque_command_;
 
-  Eigen::VectorXd joint_position_, joint_velocity_, joint_torque_command_, nullspace_torque_command_;
+  Eigen::VectorXd joint_position_, joint_position_command_, joint_error_, joint_velocity_, joint_torque_command_, nullspace_torque_command_;
 
-  std::vector<double> upper_limit_, lower_limit_, max_trq_, limit_range_;
+  std::vector<double> initial_stiffness_;
 
-  size_t number_of_joints_;
+  int number_of_joints_;
 
   Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd > es_;
-  Eigen::VectorXd k_;  // local stiffness
+  Eigen::VectorXd k_;
   Eigen::MatrixXd m_, d_, k0_, q_, qt_;
   Eigen::MatrixXd tmpNN_;
 };
 
-#endif  // JOINT_LIMIT_AVOIDANCE_H_
+#endif  // JOINT_IMPEDANCE_H_
